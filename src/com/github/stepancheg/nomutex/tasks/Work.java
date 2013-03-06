@@ -1,25 +1,22 @@
 package com.github.stepancheg.nomutex.tasks;
 
 import com.github.stepancheg.nomutex.common.Computation;
+import com.github.stepancheg.nomutex.tasks.framework.GreenThread;
+import com.github.stepancheg.nomutex.tasks.framework.LockFreeStackWithSize;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author Stepan Koltsov
  */
 public class Work {
 
-    private final Tasks tasks = new Tasks();
-
-    //private final Queue<BigInteger> workQueue = new ArrayBlockingQueue<BigInteger>(200000);
-    private final LockFreeStack<BigInteger> workQueue = new LockFreeStack<BigInteger>();
+    //private final Queue<BigInteger> workQueue = new ConcurrentLinkedQueue<BigInteger>();
     //private final AtomicInteger workQueueSize = new AtomicInteger(0);
+    private final LockFreeStackWithSize<BigInteger> workQueue = new LockFreeStackWithSize<BigInteger>();
 
     public int getWorkQueueSize() {
         return workQueue.size();
@@ -27,19 +24,20 @@ public class Work {
     }
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final Runnable actor = new ActorImpl();
+    private final GreenThread thread = new GreenThread(actor, executor);
 
     final Computation computation = new Computation();
 
-    private volatile boolean requestCompleteSignal = false;
-    private final CountDownLatch completeLatch = new CountDownLatch(1);
 
+    // actor implementation
     private void run() {
         /*
         for (;;) {
             BigInteger item = workQueue.poll();
             if (item == null)
                 return;
-            //workQueueSize.decrementAndGet();
+            workQueueSize.decrementAndGet();
             computation.update(item);
         }
         */
@@ -47,26 +45,13 @@ public class Work {
         for (BigInteger item : items) {
             computation.update(item);
         }
+
     }
 
-    class RunnableImpl implements Runnable {
-
+    class ActorImpl implements Runnable {
         @Override
         public void run() {
-            while (tasks.fetchTask()) {
-                Work.this.run();
-            }
-            if (requestCompleteSignal) {
-                completeLatch.countDown();
-            }
-        }
-    }
-
-    private final RunnableImpl runnable = new RunnableImpl();
-
-    private void schedule() {
-        if (tasks.addTask()) {
-            executor.submit(runnable);
+            Work.this.run();
         }
     }
 
@@ -77,18 +62,11 @@ public class Work {
 
         //workQueueSize.incrementAndGet();
 
-        schedule();
+        thread.schedule();
     }
 
     public void complete() {
-        requestCompleteSignal = true;
-        schedule();
-        try {
-            completeLatch.await();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        executor.shutdown();
+        thread.complete();
     }
 
 }

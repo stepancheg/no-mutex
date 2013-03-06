@@ -1,6 +1,7 @@
 package com.github.stepancheg.nomutex.mutex;
 
 import com.github.stepancheg.nomutex.common.Computation;
+import com.github.stepancheg.nomutex.common.Parameters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
 public class MutexMain {
 
     public static void main(String[] args) throws Exception {
-        System.out.println(MutexMain.class.getSimpleName());
+        System.out.println(MutexMain.class.getSimpleName() + " " + Parameters.describe());
 
         List<Thread> threads = new ArrayList<Thread>();
 

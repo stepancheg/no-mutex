@@ -1,5 +1,7 @@
 package com.github.stepancheg.nomutex.tasks;
 
+import com.github.stepancheg.nomutex.common.Parameters;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +11,7 @@ import java.util.List;
 public class TasksMain {
 
     public static void main(String[] args) throws Exception {
-        System.out.println(TasksMain.class.getSimpleName());
+        System.out.println(TasksMain.class.getSimpleName() + " " + Parameters.describe());
 
         Work work = new Work();
 

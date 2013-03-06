@@ -22,9 +22,21 @@ public class Parameters {
         numbers = Collections.unmodifiableList(numbersTemp);
     }
 
+    public static final boolean USE_PREALLOCATED = true;
+
+    public static String describe() {
+        return USE_PREALLOCATED ? "preallocated" : "new";
+    }
+
     public static BigInteger getNumber(int i) {
-        //return BigInteger.valueOf(i);
-        return numbers.get(i % numbers.size());
+        // when new objects are allocated are used, difference between version
+        // is not big because of caching
+
+        if (USE_PREALLOCATED) {
+            return numbers.get(i % numbers.size());
+        } else {
+            return BigInteger.valueOf(i);
+        }
     }
 
 }

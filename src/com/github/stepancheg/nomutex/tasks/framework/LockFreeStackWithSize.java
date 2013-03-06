@@ -1,13 +1,15 @@
-package com.github.stepancheg.nomutex.tasks;
+package com.github.stepancheg.nomutex.tasks.framework;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
+ * Lock-free stack with constant-time {@link #size()} operation.
+ *
  * @author Stepan Koltsov
  */
-public class LockFreeStack<T> {
+public class LockFreeStackWithSize<T> {
 
     private static class Node<T> {
         private volatile Node<T> next;
