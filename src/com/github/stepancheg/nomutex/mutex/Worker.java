@@ -21,7 +21,7 @@ public class Worker implements Runnable {
     @Override
     public void run() {
         for (int i = 0; i < Parameters.EMIT_BY_THREAD; ++i) {
-            BigInteger item = BigInteger.valueOf(i);
+            BigInteger item = Parameters.getNumber(i);
             synchronized (mutex) {
                 computation.update(item);
             }

@@ -11,6 +11,8 @@ import java.util.List;
 public class MutexMain {
 
     public static void main(String[] args) throws Exception {
+        System.out.println(MutexMain.class.getSimpleName());
+
         List<Thread> threads = new ArrayList<Thread>();
 
         Computation computation = new Computation();

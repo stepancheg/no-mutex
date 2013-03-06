@@ -9,6 +9,8 @@ import java.util.List;
 public class TasksMain {
 
     public static void main(String[] args) throws Exception {
+        System.out.println(TasksMain.class.getSimpleName());
+
         Work work = new Work();
 
         List<Thread> threads = new ArrayList<Thread>();

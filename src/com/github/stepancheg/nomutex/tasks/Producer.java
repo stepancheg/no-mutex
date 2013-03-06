@@ -27,7 +27,7 @@ public class Producer implements Runnable {
                     }
                 }
             }
-            work.addWork(BigInteger.valueOf(i));
+            work.addWork(Parameters.getNumber(i));
         }
 
         System.out.println("producer completed");
