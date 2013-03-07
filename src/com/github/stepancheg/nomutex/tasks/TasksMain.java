@@ -4,6 +4,8 @@ import com.github.stepancheg.nomutex.common.Parameters;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author Stepan Koltsov
@@ -13,7 +15,9 @@ public class TasksMain {
     public static void main(String[] args) throws Exception {
         System.out.println(TasksMain.class.getSimpleName() + " " + Parameters.describe());
 
-        Work work = new Work();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        CounterSimpleActor work = new CounterSimpleActor(executor);
 
         List<Thread> threads = new ArrayList<Thread>();
 
@@ -41,6 +45,8 @@ public class TasksMain {
 
         System.out.println(work.computation.getSum());
         System.out.print("took " + duration + "ms");
+
+        executor.shutdown();
     }
 
 }

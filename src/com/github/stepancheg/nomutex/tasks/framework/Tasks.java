@@ -3,6 +3,8 @@ package com.github.stepancheg.nomutex.tasks.framework;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
+ * Helper class to implement {@link ActorRunner}.
+ *
  * @author Stepan Koltsov
  */
 class Tasks {
@@ -55,6 +57,48 @@ class Tasks {
                 case RUNNING_GOT_TASKS:
                     return false;
                 default:
+                    throw new AssertionError();
+            }
+        }
+    }
+
+    /**
+     * Add task and fetch task (advanced operation).
+     *
+     * @return <code>true</code> iff caller have to execute task
+     */
+    public boolean addTaskFetchTask() {
+        for (;;) {
+            State current = state.get();
+            switch (current) {
+                case WAITING:
+                    if (state.compareAndSet(current, State.RUNNING_NO_TASKS))
+                        return true;
+                case RUNNING_NO_TASKS:
+                    if (state.compareAndSet(current, State.RUNNING_GOT_TASKS))
+                        return false;
+                case RUNNING_GOT_TASKS:
+                    return false;
+            }
+        }
+    }
+
+    /**
+     * Fetch task and add task if fetched (advanced operation)
+     *
+     * @return <code>true</code> iff caller have to execute task
+     */
+    public boolean fetchTaskAddTask() {
+        for (;;) {
+            State current = state.get();
+            switch (current) {
+                case RUNNING_GOT_TASKS:
+                    return true;
+                case RUNNING_NO_TASKS:
+                    if (state.compareAndSet(current, State.WAITING))
+                        return false;
+                case WAITING:
+                    // WAITING is not possible at this point
                     throw new AssertionError();
             }
         }

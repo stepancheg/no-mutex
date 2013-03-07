@@ -21,6 +21,10 @@ public class LockFreeStackWithSize<T> {
 
     private final AtomicReference<Node<T>> root = new AtomicReference<Node<T>>((Node<T>) tail);
 
+    /**
+     * Add element to the stack.
+     * @return <code>true</code>
+     */
     public boolean add(T value) {
         Node<T> newRoot = new Node<T>();
         newRoot.payload = value;
@@ -33,11 +37,17 @@ public class LockFreeStackWithSize<T> {
         }
     }
 
+    /**
+     * Constant-time size operation.
+     */
     public int size() {
         return root.get().size;
     }
 
-    public List<T> dequeueAll() {
+    /**
+     * Dequeue all works faster than calling dequeue in loop.
+     */
+    public List<T> removeAllInReversed() {
         List<T> result = new ArrayList<T>(size() + 100);
 
         Node<T> r;
