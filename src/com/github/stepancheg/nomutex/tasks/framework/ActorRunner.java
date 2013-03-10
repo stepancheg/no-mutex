@@ -54,7 +54,7 @@ public class ActorRunner {
      */
     public void scheduleHere() {
         if (tasks.addTask()) {
-            runnable.run();
+            loop();
         }
     }
 
@@ -70,7 +70,30 @@ public class ActorRunner {
             actor.run();
             if (tasks.fetchTaskAddTask()) {
                 executor.execute(runnable);
+            } else {
+                if (requestCompleteSignal) {
+                    completeLatch.countDown();
+                }
             }
+        }
+    }
+
+    private void loop() {
+        for (int i = 0; tasks.fetchTask(); ++i) {
+            actor.run();
+
+            // poor man scheduler: if actor is executing too long,
+            // give other actors a chance to be executed
+            if (i == 1000) {
+                if (tasks.fetchTaskAddTask()) {
+                    executor.execute(runnable);
+                    return;
+                }
+            }
+        }
+
+        if (requestCompleteSignal) {
+            completeLatch.countDown();
         }
     }
 
@@ -90,22 +113,7 @@ public class ActorRunner {
     private class RunnableImpl implements Runnable {
         @Override
         public void run() {
-            for (int i = 0; tasks.fetchTask(); ++i) {
-                actor.run();
-
-                // poor man scheduler: if actor is executing too long,
-                // give other actors a chance to be executed
-                if (i == 1000) {
-                    if (tasks.fetchTaskAddTask()) {
-                        executor.execute(runnable);
-                        return;
-                    }
-                }
-            }
-
-            if (requestCompleteSignal) {
-                completeLatch.countDown();
-            }
+            loop();
         }
     }
 

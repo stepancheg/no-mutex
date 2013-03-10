@@ -18,7 +18,7 @@ public class Producer implements Runnable {
         for (int i = 0; i < Parameters.EMIT_BY_THREAD; ++i) {
             if (i % (100 * 1000) == 0) {
                 // make sure queue is not overflowed
-                // this hack is for test only, in real applications
+                // this hack is for test only
                 while (work.getQueueSize() > 100 * 1000) {
                     try {
                         Thread.sleep(1);

@@ -29,7 +29,7 @@ public abstract class SimpleSingleQueueActor<T> {
     class ActorImpl implements Runnable {
         @Override
         public void run() {
-            List<T> items = queue.removeAllInReversed();
+            List<T> items = queue.removeAllReversed();
             // TODO: process in reverse order
             for (T item : items) {
                 processMessage(item);

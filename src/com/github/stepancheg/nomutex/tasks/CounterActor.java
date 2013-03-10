@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
+ * Simple version of this actor is {@link CounterSimpleActor}.
+ *
  * @author Stepan Koltsov
  */
 public class CounterActor implements Runnable {
@@ -32,8 +34,8 @@ public class CounterActor implements Runnable {
 
     @Override
     public void run() {
-        List<BigInteger> items = queue.removeAllInReversed();
-        // TODO: process in reverse order
+        List<BigInteger> items = queue.removeAllReversed();
+        // TODO: processes in reverse order
         for (BigInteger item : items) {
             computation.update(item);
         }

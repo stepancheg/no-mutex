@@ -47,7 +47,7 @@ public class LockFreeStackWithSize<T> {
     /**
      * Dequeue all works faster than calling dequeue in loop.
      */
-    public List<T> removeAllInReversed() {
+    public List<T> removeAllReversed() {
         List<T> result = new ArrayList<T>(size() + 100);
 
         Node<T> r;

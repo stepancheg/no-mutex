@@ -43,7 +43,7 @@ class Tasks {
     }
 
     /**
-     * @return <code>true</code> iff caller have to either schedule task or execute it
+     * @return <code>true</code> iff caller has to schedule task execution
      */
     public boolean addTask() {
         for (;;) {
@@ -86,7 +86,7 @@ class Tasks {
     /**
      * Fetch task and add task if fetched (advanced operation)
      *
-     * @return <code>true</code> iff caller have to execute task
+     * @return <code>true</code> iff caller has to fetch or schedule task
      */
     public boolean fetchTaskAddTask() {
         for (;;) {
