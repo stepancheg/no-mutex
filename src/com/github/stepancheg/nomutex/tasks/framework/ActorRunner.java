@@ -66,9 +66,16 @@ public class ActorRunner {
      * reschedule it in worker pool.
      */
     public void scheduleHereAtMostOnce() {
-        if (tasks.addTaskFetchTask()) {
+        if (tasks.addTask()) {
+            if (!tasks.fetchTask()) {
+                throw new AssertionError();
+            }
             actor.run();
-            if (tasks.fetchTaskAddTask()) {
+
+            if (tasks.fetchTask()) {
+                if (tasks.addTask()) {
+                    throw new AssertionError();
+                }
                 executor.execute(runnable);
             } else {
                 if (requestCompleteSignal) {
@@ -85,7 +92,10 @@ public class ActorRunner {
             // poor man scheduler: if actor is executing too long,
             // give other actors a chance to be executed
             if (i == 1000) {
-                if (tasks.fetchTaskAddTask()) {
+                if (tasks.fetchTask()) {
+                    if (tasks.addTask()) {
+                        throw new AssertionError();
+                    }
                     executor.execute(runnable);
                     return;
                 }

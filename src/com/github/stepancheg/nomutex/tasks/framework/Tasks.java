@@ -1,6 +1,6 @@
 package com.github.stepancheg.nomutex.tasks.framework;
 
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Helper class to implement {@link ActorRunner}.
@@ -18,27 +18,19 @@ class Tasks {
         RUNNING_GOT_TASKS,
     }
 
-    private final AtomicReference<State> state = new AtomicReference<State>(State.WAITING);
+    private final AtomicInteger state = new AtomicInteger();
 
     /**
      * @return <code>true</code> iff we have to recheck queues
      */
     public boolean fetchTask() {
-        for (;;) {
-            State current = state.get();
-            switch (current) {
-                case RUNNING_GOT_TASKS:
-                    if (state.compareAndSet(current, State.RUNNING_NO_TASKS))
-                        return true;
-                    break;
-                case RUNNING_NO_TASKS:
-                    if (state.compareAndSet(current, State.WAITING))
-                        return false;
-                    break;
-                default:
-                    // WAITING is not possible at this point
-                    throw new AssertionError();
-            }
+        int old = state.getAndDecrement();
+        if (old == State.RUNNING_GOT_TASKS.ordinal()) {
+            return true;
+        } else if (old == State.RUNNING_NO_TASKS.ordinal()) {
+            return false;
+        } else {
+            throw new AssertionError();
         }
     }
 
@@ -46,62 +38,14 @@ class Tasks {
      * @return <code>true</code> iff caller has to schedule task execution
      */
     public boolean addTask() {
-        for (;;) {
-            State current = state.get();
-            switch (current) {
-                case WAITING:
-                case RUNNING_NO_TASKS:
-                    if (state.compareAndSet(current, State.RUNNING_GOT_TASKS))
-                        return current == State.WAITING;
-                    break;
-                case RUNNING_GOT_TASKS:
-                    return false;
-                default:
-                    throw new AssertionError();
-            }
-        }
-    }
+        // fast track for high-load applications
+        // atomic get is cheaper than atomic swap
+        // for both this thread and fetching thread
+        if (state.get() == State.RUNNING_GOT_TASKS.ordinal())
+            return false;
 
-    /**
-     * Add task and fetch task (advanced operation).
-     *
-     * @return <code>true</code> iff caller have to execute task
-     */
-    public boolean addTaskFetchTask() {
-        for (;;) {
-            State current = state.get();
-            switch (current) {
-                case WAITING:
-                    if (state.compareAndSet(current, State.RUNNING_NO_TASKS))
-                        return true;
-                case RUNNING_NO_TASKS:
-                    if (state.compareAndSet(current, State.RUNNING_GOT_TASKS))
-                        return false;
-                case RUNNING_GOT_TASKS:
-                    return false;
-            }
-        }
-    }
-
-    /**
-     * Fetch task and add task if fetched (advanced operation)
-     *
-     * @return <code>true</code> iff caller has to fetch or schedule task
-     */
-    public boolean fetchTaskAddTask() {
-        for (;;) {
-            State current = state.get();
-            switch (current) {
-                case RUNNING_GOT_TASKS:
-                    return true;
-                case RUNNING_NO_TASKS:
-                    if (state.compareAndSet(current, State.WAITING))
-                        return false;
-                case WAITING:
-                    // WAITING is not possible at this point
-                    throw new AssertionError();
-            }
-        }
+        int old = state.getAndSet(State.RUNNING_GOT_TASKS.ordinal());
+        return old == State.WAITING.ordinal();
     }
 
 }
