@@ -2,9 +2,11 @@ package com.github.stepancheg.nomutex.tasks;
 
 import com.github.stepancheg.nomutex.common.Computation;
 import com.github.stepancheg.nomutex.tasks.framework.ActorRunner;
+import com.github.stepancheg.nomutex.tasks.framework.ArrayListQueue;
 import com.github.stepancheg.nomutex.tasks.framework.LockFreeStackWithSize;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -17,7 +19,16 @@ public class CounterActor implements Runnable {
 
     final Computation computation = new Computation();
 
-    private final LockFreeStackWithSize<BigInteger> queue = new LockFreeStackWithSize<BigInteger>();
+    private List<ArrayListQueue<BigInteger>> queues = new ArrayList<>();
+    {
+        for (int i = 0; i < 10; ++i) {
+            queues.add(new ArrayListQueue<>());
+        }
+    }
+
+    public ArrayListQueue<BigInteger> getQueue(int i) {
+        return queues.get(i);
+    }
 
     private final ActorRunner runner;
 
@@ -28,26 +39,20 @@ public class CounterActor implements Runnable {
         this.runner = new ActorRunner(this, executor);
     }
 
-    public int getQueueSize() {
-        return queue.size();
-    }
-
     @Override
     public void run() {
-        List<BigInteger> items = queue.removeAllReversed();
-        // TODO: processes in reverse order
-        for (BigInteger item : items) {
-            computation.update(item);
+        for (ArrayListQueue<BigInteger> queue : queues) {
+            for (BigInteger request : queue.dequeueAll()) {
+                computation.update(request);
+            }
         }
     }
 
-        /**
+    /**
      * Add task for this actor.
      */
-    public void addWork(BigInteger item) {
-        boolean added = queue.add(item);
-        if (!added)
-            throw new AssertionError();
+    public void addWork(int queue, BigInteger item) {
+        getQueue(queue).enqueue(item);
 
         //runner.scheduleHereAtMostOnce();
         runner.schedule();
@@ -57,4 +62,7 @@ public class CounterActor implements Runnable {
         runner.complete();
     }
 
+    public int getQueueSize(int no) {
+        return getQueue(no).size();
+    }
 }

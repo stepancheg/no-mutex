@@ -18,7 +18,7 @@ public class MutexMain {
 
         Computation computation = new Computation();
 
-        for (int i = 0; i < 2; ++i) {
+        for (int i = 0; i < Parameters.nThreads; ++i) {
             threads.add(new Thread(new Worker(computation)));
         }
 

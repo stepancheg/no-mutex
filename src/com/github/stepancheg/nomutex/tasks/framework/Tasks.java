@@ -30,7 +30,7 @@ class Tasks {
         } else if (old == State.RUNNING_NO_TASKS.ordinal()) {
             return false;
         } else {
-            throw new AssertionError();
+            throw new AssertionError("unknown old state: " + old);
         }
     }
 

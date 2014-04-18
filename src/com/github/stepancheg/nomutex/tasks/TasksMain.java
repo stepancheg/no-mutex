@@ -13,16 +13,24 @@ import java.util.concurrent.Executors;
 public class TasksMain {
 
     public static void main(String[] args) throws Exception {
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
+        });
+
         System.out.println(TasksMain.class.getSimpleName() + " " + Parameters.describe());
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
 
-        CounterSimpleActor work = new CounterSimpleActor(executor);
+        CounterActor work = new CounterActor(executor);
 
         List<Thread> threads = new ArrayList<Thread>();
 
-        for (int i = 0; i < 2; ++i) {
-            threads.add(new Thread(new Producer(work)));
+        for (int i = 0; i < Parameters.nThreads; ++i) {
+            threads.add(new Thread(new Producer(work, i)));
         }
 
         long start = System.currentTimeMillis();

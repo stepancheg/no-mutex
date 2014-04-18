@@ -7,10 +7,12 @@ import com.github.stepancheg.nomutex.common.Parameters;
  */
 public class Producer implements Runnable {
 
-    private final CounterSimpleActor work;
+    private final CounterActor work;
+    private final int no;
 
-    public Producer(CounterSimpleActor work) {
+    public Producer(CounterActor work, int no) {
         this.work = work;
+        this.no = no;
     }
 
     @Override
@@ -19,7 +21,7 @@ public class Producer implements Runnable {
             if (i % (100 * 1000) == 0) {
                 // make sure queue is not overflowed
                 // this hack is for test only
-                while (work.getQueueSize() > 100 * 1000) {
+                while (work.getQueueSize(no) > 100 * 1000) {
                     try {
                         Thread.sleep(1);
                     } catch (Exception e) {
@@ -27,7 +29,7 @@ public class Producer implements Runnable {
                     }
                 }
             }
-            work.addWork(Parameters.getNumber(i));
+            work.addWork(no, Parameters.getNumber(i));
         }
 
         System.out.println("producer completed");

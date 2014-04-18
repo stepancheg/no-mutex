@@ -86,20 +86,8 @@ public class ActorRunner {
     }
 
     private void loop() {
-        for (int i = 0; tasks.fetchTask(); ++i) {
+        while (tasks.fetchTask()) {
             actor.run();
-
-            // poor man scheduler: if actor is executing too long,
-            // give other actors a chance to be executed
-            if (i == 1000) {
-                if (tasks.fetchTask()) {
-                    if (tasks.addTask()) {
-                        throw new AssertionError();
-                    }
-                    executor.execute(runnable);
-                    return;
-                }
-            }
         }
 
         if (requestCompleteSignal) {

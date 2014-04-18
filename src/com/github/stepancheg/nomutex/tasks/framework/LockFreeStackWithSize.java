@@ -3,6 +3,7 @@ package com.github.stepancheg.nomutex.tasks.framework;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 /**
  * Lock-free stack with constant-time {@link #size()} operation.
@@ -48,8 +49,14 @@ public class LockFreeStackWithSize<T> {
      * Dequeue all works faster than calling dequeue in loop.
      */
     public List<T> removeAllReversed() {
-        List<T> result = new ArrayList<T>(size() + 100);
+        List<T> result = new ArrayList<>(size() + 100);
 
+        removeAllReversed(result::add);
+
+        return result;
+    }
+
+    public void removeAllReversed(Consumer<T> consumer) {
         Node<T> r;
 
         for (;;) {
@@ -59,10 +66,8 @@ public class LockFreeStackWithSize<T> {
         }
 
         while (r != tail) {
-            result.add(r.payload);
+            consumer.accept(r.payload);
             r = r.next;
         }
-
-        return result;
     }
 }

@@ -6,7 +6,7 @@ import java.math.BigInteger;
  * @author Stepan Koltsov
  */
 public class Computation {
-    private BigInteger sum = BigInteger.ZERO;
+    private BigInteger sum = BigInteger.valueOf(Long.MAX_VALUE);
 
     public BigInteger getSum() {
         return sum;
