@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class Parameters {
 
-    public static final int EMIT_BY_THREAD = 50 * 1000 * 1000;
+    public static final int EMIT_BY_THREAD = 20 * 1000 * 1000;
 
     public static final int nThreads = 6;
 

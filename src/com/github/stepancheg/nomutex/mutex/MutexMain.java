@@ -37,7 +37,7 @@ public class MutexMain {
         long duration = System.currentTimeMillis() - start;
 
         System.out.println(computation.getSum());
-        System.out.print("took " + duration + "ms");
+        System.out.println("took " + duration + "ms");
     }
 
 }

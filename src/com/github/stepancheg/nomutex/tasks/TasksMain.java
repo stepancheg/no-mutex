@@ -12,7 +12,7 @@ import java.util.concurrent.Executors;
  */
 public class TasksMain {
 
-    public static void main(String[] args) throws Exception {
+    static {
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread t, Throwable e) {
@@ -20,7 +20,9 @@ public class TasksMain {
                 System.exit(1);
             }
         });
+    }
 
+    public static void main(String[] args) throws Exception {
         System.out.println(TasksMain.class.getSimpleName() + " " + Parameters.describe());
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -52,7 +54,7 @@ public class TasksMain {
         long duration = System.currentTimeMillis() - start;
 
         System.out.println(work.computation.getSum());
-        System.out.print("took " + duration + "ms");
+        System.out.println("took " + duration + "ms");
 
         executor.shutdown();
     }
