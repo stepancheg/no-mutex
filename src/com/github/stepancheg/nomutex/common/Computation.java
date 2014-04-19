@@ -13,6 +13,6 @@ public class Computation {
     }
 
     public void update(BigInteger param) {
-        sum = sum.add(param);
+        sum = sum.multiply(param);
     }
 }

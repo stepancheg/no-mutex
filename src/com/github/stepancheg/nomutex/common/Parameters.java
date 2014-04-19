@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class Parameters {
 
-    public static final int EMIT_BY_THREAD = 20 * 1000 * 1000;
+    public static final int EMIT_BY_THREAD = 50 * 1000 * 1000;
 
     public static final int nThreads = 6;
 
@@ -24,7 +24,7 @@ public class Parameters {
         numbers = Collections.unmodifiableList(numbersTemp);
     }
 
-    public static final boolean USE_PREALLOCATED = true;
+    public static final boolean USE_PREALLOCATED = false;
 
     public static String describe() {
         return USE_PREALLOCATED ? "preallocated" : "new";
